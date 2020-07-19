@@ -1,0 +1,15 @@
+*********************** ALGO SOUPLE ****************************
+r = 0.05, NBTEST = 4
+Polygone d'entree d'algorithme SOUPLE : 
+ class Polygon : [ (0.000000,-1.000000),(0.000000,1.000000),(-0.947722,2.217251),(1.597601,-0.213163),(-0.102064,-2.429944) ]
+Aire Initiale : 4.992600093263948
+Methode iterative symétrique souple pour 100 itérations maximum 
+
+Polygone de sortie d'algorithme SOUPLE : 
+ class Polygon : [ (0.000000,-1.000000),(0.000000,1.000000),(-0.735222,2.217251),(1.739390,-0.142452),(0.039725,-2.309233) ]
+Aire Finale : 5.004159518696643
+Nombre d'iterations : 5
+Valeurs après chaque itération : [1699.4332285129713, 1713.2700070292688, 1731.8797401440509, 1748.9131449072233, 1772.8262457660405]
+
+Valeurs après chaque itération : [1699.4332285129713, 1713.2700070292688, 1731.8797401440509, 1748.9131449072233, 1772.8262457660405]
+

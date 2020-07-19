@@ -1,0 +1,1048 @@
+\documentclass[a4paper,reqno]{article}
+\addtolength{\textwidth}{2cm} \addtolength{\hoffset}{-1cm}
+\addtolength{\textheight}{2cm} \addtolength{\voffset}{-.5cm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage[usenames]{color}
+\usepackage{hyperref}
+\usepackage{mathtools}
+\mathtoolsset{showonlyrefs}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{color}
+
+
+
+\definecolor{gray}{RGB}{100,100,100}
+\definecolor{basiccolor}{RGB}{0, 43, 54}
+\definecolor{keywordscolor1}{RGB}{88, 110, 117}
+\definecolor{keywordscolor2}{RGB}{101, 123, 131}
+\definecolor{keywordscolor3}{RGB}{147, 161, 161}
+\definecolor{identifiercolor}{RGB}{37, 116, 206}
+\definecolor{commentscolor}{RGB}{91, 69, 0}
+\definecolor{attributescolor}{RGB}{203, 75, 22}
+\definecolor{numberscolor}{RGB}{147, 161, 161}
+\definecolor{stringscolor}{RGB}{48, 145, 134}
+\definecolor{backgroundcolor}{RGB}{255, 255,255}
+
+% DEFINE LSTSET
+
+\lstset{basicstyle = \color{basiccolor}\footnotesize\ttfamily,                   % the size of the fonts that are used for the code
+  identifierstyle = \color{identifiercolor},
+  commentstyle = \itshape\color{commentscolor},            % comment style
+  keywordstyle = \bfseries\color{keywordscolor1},          % keyword style
+  keywordstyle = {[2]\bfseries\color{keywordscolor2}},
+  keywordstyle = {[3]\bfseries\color{keywordscolor3}},
+  keywordstyle = {[4]\bfseries\color{attributescolor}},
+  stringstyle = \color{stringscolor},                     % string literal style
+  backgroundcolor = \color{backgroundcolor},
+  inputencoding=utf8,
+  extendedchars=true,
+  literate=%
+        {é}{{\'{e}}}1
+        {è}{{\`{e}}}1
+        {ê}{{\^{e}}}1
+        {ë}{{\¨{e}}}1
+        {É}{{\'{E}}}1
+        {Ê}{{\^{E}}}1
+        {û}{{\^{u}}}1
+        {ù}{{\`{u}}}1
+        {ú}{{\'{u}}}1
+        {â}{{\^{a}}}1
+        {à}{{\`{a}}}1
+        {á}{{\'{a}}}1
+        {ã}{{\~{a}}}1
+        {Á}{{\'{A}}}1
+        {Â}{{\^{A}}}1
+        {Ã}{{\~{A}}}1
+        {ç}{{\c{c}}}1
+        {Ç}{{\c{C}}}1
+        {õ}{{\~{o}}}1
+        {ó}{{\'{o}}}1
+        {ô}{{\^{o}}}1
+        {Õ}{{\~{O}}}1
+        {Ó}{{\'{O}}}1
+        {Ô}{{\^{O}}}1
+        {î}{{\^{i}}}1
+        {Î}{{\^{I}}}1
+        {í}{{\'{i}}}1
+        {Í}{{\~{Í}}}1}
+
+
+\newcommand{\myenv}{(\raisebox{0pt}{\mygraphic{.6em}})}
+\newcommand{\pa}{\hspace{0.5cm}}
+
+\begin{document}
+
+\title{Projet 2A : La chambre la moins froide}
+\author{Tanguy VIVIER, \\
+Rémi MOUZAYEK}
+\maketitle
+\newpage
+
+\setlength{\parindent}{1cm}
+\part*{Introduction}
+L'équation de la chaleur est une équation aux dérivées partielles 
+parabolique, pour décrire le phénomène physique de conduction thermique, introduite initialement en 1811 par Jean Baptiste Joseph Fourier. Cette problématique de la diffusion de la chaleur est un enjeu industriel central vos à vis la gestion de l'énergie. A l'heure de la COP 21, elle n'a d'ailleurs jamais semblée autant d'actualité. \\
+Comment maximiser la température d'une chambre en ne jouant que sur la géométrie de cette dernière ? Cette question qui peut surprendre de prime abord - car des dogmes architecturaux nous pousse naïvement à supposer, par définition, que toute chambre respectable se doit d'être rectangulaire - prend alors tout son sens.
+Cette recherche se place indéniablement dans un vaste domaine d'étude, au confluent des mathématiques et de l'informatique: l'optimisation de forme. \\
+
+
+% PARTIE 1 
+\part{Mise en place de l'étude}
+Notre étude sera réalisée en deux dimensions, dans le plan $\mathbb{R}^2$. Par ailleurs, une chambre sera modélisée par un polygone. Nous allons principalement nous intéresser aux pentagones (polygones à 5 côtés), cependant d'autres polygones seront également testés pour mener à bien ce travail. \\
+Cette étude n'est rien d'autre qu'un problème d'optimisation. En effet, nous chercherons à maximiser le critère: température moyenne d'une pièce dans \textbf{son régime stationnaire}. \\ Pour fixer les notations, à l'avenir, la température à la position repérée par le vecteur $x$ de la chambre $\Omega$ au temps $t$ sera notée $u(x,t)$. De plus, la température moyenne de la pièce s'exprime facilement par  $ \frac {1}{|\Omega|}\int_{\Omega} u(x,t) dx $ ou $|\Omega|$ représente l'aire de la chambre.\\
+Par ailleurs, nous considérerons que la température dans la pièce $\Omega$ est pilotée par l'équation aux dérivées partielles: 
+\\
+\begin{equation}
+\frac{\partial u}{\partial t}(x,t) = \Delta u(x,t) + f(x,t)
+\end{equation}
+Il s'agit de l'équation de la chaleur usuelle dans laquelle les diverses constantes caractéristiques du phénomène ont été égalisé à 1. Par ailleurs, $f(x,t)$ est un terme de source permettant de préciser le profil thermique de la pièce.
+Une des données clef de ce problème est de bien comprendre que dés lors que nous souhaitons classer des polygones (ou plus généralement des formes géométriques quelconques) il faut nécessairement que nous fixions des caractéristiques. En effet comment comparer la température moyenne de deux pièces si pour un même radiateur elles sont d'aires ou de nombre de cotés différents ? \\
+Voici le cahier des charges retenus: \\
+- le nombre de sommets du polygone est fixé égal à 5 dans l'étude principale, c'est à dire que nous travaillons sur des pentagones; \\
+- l'aire des polygones est fixée égale à $|\Omega|$; \\
+- toutes les chambres seront chauffées grâce à un même radiateur. Pour le modéliser, nous considérerons qu'un mur (c'est à dire un coté du polygone) de longueur fixée $l$ est sujet à un flux thermique entrant $\Phi$e connu et, également fixé;  \\
+- la chambre est supposée isolée: les températures surfaciques des autres murs (cotés du polygone) sont fixées égales à une même constante $T_{0}$; \\
+- Nous considérons un profil thermique identiquement nul : $f(x,t)  = 0$.
+\\
+Le problème est désormais bien posé. Il faut cependant garder à l'esprit que les contraintes fixées ici sont fortes: voyager à aire constant avec la position de deux sommets données est particulièrement contraignant. Une part importante de l'étude est de réfléchir à l'implémentation d'un algorithme pour pouvoir générer des polygones respectant ces contraintes.
+
+
+% PARTIE 2
+\part{Etude préliminaire: le cas des triangles}
+
+%SECTION 1 
+\section*{I - Cadre général de l'étude}
+On va considérer le problème simple d'une pièce triangulaire dans toute cette partie. On considère aussi une application $T_S$ qui a une valeur $x$ va associer un triangle d'aire $S$ et de côtés de longueur $x$ et $1$. La fonction $u_\Omega$ correspond à la solution de l'équation précédente sur le domaine $\Omega$, qui est dans le cas ici présent un triangle. On va noter $M$ la fonction qui renvoie la moyenne de $u_\Omega$ sur $\Omega$ telle que $M(\Omega) = \frac {1}{|\Omega|}\int_{\Omega} u_\Omega(x,t) dx $. \\
+Désormais, on pose $ F = M\circ T $. Le problème formulé ci-dessus revient donc à chercher le $x$ qui maximise la fonction F, on se ramène ainsi à un problème d'optimisation de $\mathbb{R}$ dans $\mathbb{R}$. \\
+\\
+Pour étudier le problème dans un premier temps, on va considérer un côté fixe de longueur 1 centré sur l'axe des ordonnées. Ensuite on va faire varier le côté adjacent de longueur $x$. En sachant que l'aire du triangle est fixée, on pourra déterminer le triangle correspondant en fonction du seul paramètre $x$. On note E l'ensemble des sous-ensembles de $\mathbb{R} ^{2}$\\
+\vspace{1.5cm}
+\begin{center}
+\begin{picture} (100,100) (-120,-20) 
+\setlength{\unitlength}{2cm}
+\thicklines
+\put(-4,0.8) {$T_\Omega : \mathbb{R} \longmapsto E$ }
+\put(-3.6,0.6){$x \longrightarrow $ Triangle de côté 1 et x, d'aire $|\Omega|$}
+\put(0,0) {\line(0,1) {2}}
+\put(0,0) {\line(1,0) {2}}
+\put(0,2) {\line(1,-1) {2}}
+\put(-0.2,0.8) {$1$}
+\put(1.1,1.1) {$x$}
+\put(0.5,0.7) {$|\Omega|$}
+\end{picture}
+\end{center}
+\vspace{2cm}
+Dans la suite de l'étude, on va considérer le côté fixé de longueur 1 sur l'axe des ordonnées, centré sur l'origine (C'est à dire les deux premiers points du triangle en (0, 0.5) et (0, -0.5)). Le dernier point du triangle peut ainsi être déterminé grâce à la seule connaissance de $x$. Par soucis de simplification, on va ainsi poser la fonction $T$ qui renvoie les coordonnées du dernier point en fonction de $x$. Le triangle pourra ainsi être tracé car on connait les deux autres coordonnées. Ce dernier point est de coordonnées : $(2|\Omega|,\frac{1}{2} - x\sqrt{1-(\frac{2|\Omega|}{x})^2})$. (On peut déterminer ces formules à l'aide de calculs simples sur les relations d'Al-Kashi)\\
+
+Sur Matlab, on a implémenté une fonction qui construit un objet de type "geometry" triangulaire en fonction de l'aire $\Omega$ et de la longueur du côté $x$. Cet objet geometry définit la forme de la zone sur laquelle on va rédoudre l'équation différentielle. 
+
+\newpage
+
+\begin{lstlisting}[language=Matlab,frame=single,caption=Construction d'une géométrie Triangulaire]
+function g = triangle(X,area)
+
+% TRIANGLE
+% Renvoie la geometrie d'un triangle d'aire fixee et de longueurs de cote 
+% X et Y 
+
+if (X.^2<0.25)
+    g = "Un tel triangle n'existe pas" 
+else 
+    mat = [2;3;0;0;2*area;-0.5;0.5;0.5-X*(1-(2*area/X)^2)^.5] ; 
+    [dl,bt] = decsg(mat) ;
+    g = dl ;
+end
+\end{lstlisting}
+
+%SECTION 2
+\section*{II - Première étude : Conditions simples}
+On va considérer ici des conditions relativement simples. Premièrement, on se place en régime stationnaire, c'est à dire que le terme $\frac{\partial u}{\partial t}$ est nul. De plus, on fixe une fonction de chauffage nulle. Enfin, les conditions aux limites sont fixées telles que le côté de longueur fixée $1$ soit traversé par un flux positif (modélisant un chauffage), et les deux autre côtés sont fixés à une température extérieure $T_0$ (dans le cas présent fixé à 10).
+\vspace{3cm}
+\begin{center}
+\begin{picture} (100,100) (-10,-10) 
+\setlength{\unitlength}{2.5cm}
+\thicklines
+\put(0,0) {\line(0,1) {2}}
+\put(0,0) {\line(1,0) {2}}
+\put(0,2) {\line(1,-1) {2}}
+\put(-0.1,2.1) {$A$}
+\put(2.1,0) {$B$}
+\put(-0.2,-0.1) {$C$}
+\put(-0.2,1) {$1$}
+\put(1.1,1.1) {$x$}
+\put(0.7,0.7) {$\Omega$}
+\put(-1,0.8) {\vector(1,0){1.3}}
+\put(-1,0.65) {$\phi $ : flux entrant}
+\put(1.7,1) {Température extérieure fixée $T_0 = 10$}
+\end{picture}
+\end{center}
+En clair les conditions aux limites sont de la forme : 
+\begin{equation}
+\left\{
+	    \begin{array}{ll}
+
+		\mbox{Dirichlet sur }  (AB)\cup (CB)\mbox{:     }u_\Omega=10 \\
+		\mbox{Neumann sur } (AC)\mbox{:    }-grad(u_\Omega).n = 50
+	    \end{array}
+\right.		
+\end{equation}
+On peut résoudre l'EDP sur l'exemple ci-dessus avec Matlab assez facilement. On prend dans cette résolution la valeur x =$\sqrt{2}$ et $|\Omega| = 1/2$ pour que cela corresponde au dessin ci-dessus. 
+\begin{center}
+\includegraphics[scale=0.5]{TriangleEDP.jpg}
+\end{center}
+Voici le script matlab correspondant (Les fonctions seront explicitées ultérieurement) :
+\vspace{0.5cm}
+
+
+
+% LISTING2 
+\begin{lstlisting}[language=Matlab,frame=single,caption=Resolution d'une EDP sur un triangle]
+function result = uTriangle(X,area,fc)
+
+model = createpde() ; 
+g=triangle(X,area) ; 
+% Construit un triangle de cote X et d'aire area
+geometryFromEdges(model,g); % geometryFromEdges for 2-D
+
+%Conditions de bord : 
+%Les murs non chauffes sont a la temperature exterieure To = 10
+applyBoundaryCondition(model,'dirichlet','Edge',[2,3],'u',10);
+
+%Le mur chauffe est modelise par un flux rentrant 
+% on suppose que l on a mis un radiateur au niveau du mur 
+applyBoundaryCondition(model,'neumann','Edge',[1],'q',0,'g',50);
+
+% Parametres de l'equation
+a = 0;
+c=1;
+a=0;
+f=fc;
+% On choisit une maille adaptative, car les coins du triangle sont un probleme
+[u,p,e,t] = adaptmesh(g,model,c,a,f,'maxt',5000,'par',1e-10);
+pdeplot(p,e,t,'XYData',u,'ZData',u,'Mesh','off')
+xlabel('x')
+ylabel('y')
+xlim([-X X])
+ylim([-X X])
+axis equal
+result.u = u ;  % Valeur de u sur chaque mesh
+result.p = p ;  % Coordonnees des points 
+result.t = t ;
+result.e = e ;  % Reference de chacun des points 
+end
+\end{lstlisting}
+\vspace{0.5cm}
+Une fois l'équation résolue, il faut maintenant s'interesser à calculer l'intégrale de cette fonction sur le triangle. Pour réaliser cela, nous avons programmé la fonction suivante, qui prend en paramètre la fonction uTriangle ci-dessus, et calcule l'intégrale approchée à l'aide des données fournies par l'algorithme précédent.
+
+\begin{lstlisting}[language=Matlab,frame=single,caption=Calcul de l'integrale]
+function I = Integrale(u)
+
+coord = u.p ;    % Contient les coordonnees des sommets 
+indices = u.t ;  % Contient les references de chaque element
+val = u.u ; 
+
+% On va calculer l integrale en evaluant la valeur de la fonction sur
+% chaque petit triangle 
+I =0 ; 
+area = 0 ; 
+for i = 1:length(indices) ;          % Pour chaque triangle 
+    a = coord(:,indices(1,i)) ;      % Coord du 1er point 
+    b = coord(:,indices(2,i)) ;      % Coord du second point 
+    c = coord(:,indices(3,i)) ;      % Coord du troisieme point
+    
+    moy = (val(indices(1,i))+val(indices(1,i))+val(indices(1,i)))/3 ;
+    area = area + 0.5*abs(a(1)*c(2)-a(1)*b(2)+b(1)*a(2)-b(1)*c(2)
+    +c(1)*b(2)-c(1)*a(2)) ; 
+    I = I + moy*0.5*abs(a(1)*c(2)-a(1)*b(2)+b(1)*a(2)-b(1)*c(2)+c(1)*
+    b(2)-c(1)*a(2)) ;
+end
+    I = I/area ; 
+end
+\end{lstlisting} 
+On peut maintenant mettre en place l'algorithme pour determiner la solution de notre problème. On essaie donc différentes valeurs de $x$ pour une aire fixée à 0.25.
+% Script pour trouver le maximum 
+% LISTING 3
+\begin{lstlisting}[language=Matlab,frame=single,caption=Script Principal]
+% Script principal 
+x = 0.5:0.01:1.5 ; 
+mat = [] ; 
+for i = 1:length(x) ;
+         mat(i) = Integrale(uTriangle(x(i),1/4,0)) ;
+end
+plot(x,mat) ; 
+xlabel('longueur du cote x')
+ylabel('Temperature moyenne')
+\end{lstlisting}
+\vspace{0.5cm}
+Le programme nous retourne la courbe suivante : \\
+\begin{center}
+\includegraphics[scale=0.5]{Triangle_CourbeX.jpg}
+\end{center}
+\newpage
+
+On trouve alors un maximum aux alentours entre $0.70$ et $0.71$ (ce qui ressemble fortement à $\frac{\sqrt{2}}{2}$). Ce n'est pas vraiment une surprise, car on s'attendait à trouver une forme relativement régulière, et dans le cas présent, il s'agit du triangle rectangle équilatéral. \\
+\vspace{5cm}
+\begin{center}
+\begin{picture} (0,0) (20,0) 
+\setlength{\unitlength}{2.5cm}
+\thicklines
+\put(0,0) {\line(0,1) {2}}
+\put(0,0) {\line(1,1) {1}}
+\put(0,2) {\line(1,-1) {1}}
+\put(-0.2,1) {$1$}
+\put(0.2,1) {$|\Omega|$}
+\end{picture}
+\end{center}
+\vspace{1cm}
+Procédons à quelques remarque. Tout d'abord, on observe que la figure "optimisée" est symétrique, ce qui semble s'accorder avec les conditions aux limites spatiales qui sont elles symétriques par rapport à l'axe des abscisses. Cela explique pourquoi dans la suite de l'étude, nous accorderons une place importante à la symétrie dans les figures recherchées.\\
+
+
+
+
+\newpage
+
+
+\part{Cas général du pentagone: premier algorithme}
+
+\section*{I - Stabilité de la famille par petits déplacements}
+
+\pa Nous avons explicité dans la partie 1 les caractéristiques des polygones qui nous intéressent. Par ailleurs, nous avons relevé à quel point ces caractéristiques étaient contraignantes. Nous cherchons une méthode à partir d'un polygone correspondant au cahier des charges de générer, par petits déplacements des sommets, d'autres polygones le respectant encore. Cette méthode pourrait ensuite être utilisée dans un algorithme itératif pour trouver des (nous n'avons pas encore dégagé de résultat sur l'existence d'un polygone optimal unique) chambres optimales. \\ 
+\pa L'idée générale de la méthode repose sur le déplacement des sommets du polygone en conservant l'aire du polygone. Pour cela, nous allons déplacer un sommet sur la droite parallèle à celle passant par les deux sommets voisins. Sur le schéma, nous avons représenté cette droite en rouge. L'idée derrière ce déplacement est d'exploiter la formule sur l'aire d'une triangle : $\mathcal{A} = \frac{\mathcal{B}.h}{2}$ , ou $\mathcal{B}$ est la base du triangle et $h$ est la hauteur du triangle. En suivant cette méthode, nous conservons la hauteur et la base du triangle considéré par l'algorithme et par conséquent son aire. \\
+\pa En excluant la possibilité de déplacer les deux sommets correspondant au mur relatif au flux entrant, nous avons alors explicité des petits déplacements stables pour la famille de polygones considérée. \\
+Dans la suite, nous dirons en parlant des sommets du mur modélisant le radiateur qu'ils sont \textbf{fixes}, et que les autres sont \textbf{mobiles}.
+
+\vspace{3.5cm}
+\begin{center}
+\begin{picture} (100,100) (20,0) 
+\setlength{\unitlength}{2.5cm}
+\thinlines
+\put(0,0) {\color{gray} \line(-2,3) {1}}
+\put(-1,1.5) {\color{gray} \line(2,1) {1}}
+\thicklines
+\put(0,0){\line(-1,1){1}}
+\put(-1,1){\line(1,1){1}}
+\put(0,0){\line(1,0){2}}
+\put(0,-0.5) {\color{red} \line(0,1) {3}}
+\put(-1,-0.5) {\color{red} \line(0,1) {3}}
+\put(0,2) {\line(1,0) {2}}
+\put(2,2) {\line(1,-1) {1}}
+\put(2,0) {\line(1,1) {1}}
+\put(-1,1) {\vector(0,1) {0.48}}
+\put(-1,1.5){\circle*{0.05}}
+\put(-1,1){\circle*{0.05}}
+\put(-1.2,1.5){$A'$}
+\put(-1.2,1){$A$}
+\put(0.95,1) {$\Omega$}
+\end{picture}
+\\
+\vspace{1.5cm}
+Figure : Déplacement du sommet $A$ selon l'algorithme
+\end{center}
+\vspace{0.5cm}
+
+\newpage
+
+\section*{II - Implémentation d'un algorithme sous Python} 
+\pa L'idée générale est de créer un objet sous python qui représente un polygone. Nous avons opté pour la création d'une classe appelée Polygon, qui est constituée d'une liste de points indépendants, qui peuvent être bougés au gré de nos envies. 
+\\
+Tout d'abord, nous disposons, via MATLAB, d'un outil puissant et efficace de résolution des équations différentielles: la PDE toolbox. Cependant, un inconvénient de cet outil est le temps d'exécution qui est élevé. Appelons \textit{calcul\_statio} le programme qui renvoie la valeur de la température moyenne de la chambre en régime stationnaire.
+
+\par Présentons schématiquement les idées générales de l'algorithme \textbf{itératif} que nous avons choisi : \vspace{0.3cm}
+
+\begin{itemize}
+  \item L'algorithme prend en entrée les coordonnées du polygone initial dans le bon ordre ainsi que le pas $p$ de déplacement;
+  \item On entre dans la boucle: tous les sommets mobiles du polygones sont parcourus;
+  \item Pour chaque sommet on teste les deux petits déplacements stables symétriques d'amplitude p: pour chaque déplacement on applique \textit{calcul\_statio}
+  \item On garde en mémoire le déplacement (éventuellement nul si pas d'amélioration) et la valeur de la température moyenne associée. 
+  \item on ressort de la boucle avec le meilleur déplacement et le sommet associé
+  \item On applique le déplacement au polygone, puis on recommence (il s'agit bien d'un procédé itératif)
+\end{itemize}
+\vspace{0.3cm}
+
+
+\par 
+\section*{III - Remarques et améliorations}
+Premièrement, nous pouvons remarquer que cet algorithme met en jeu une connexion entre python ou nous gérons les données relatives aux polygones et MATLAB pour faire les calculs. Cette connexion assez technique sur le plan purement informatique est couteuse en temps. Nous envisageons donc pour la suite de notre projet d'éventuellement trouver un module sur python pour y mener l'ensemble du processus. \\
+ Par ailleurs, la plus grande partie du temps d'exécution de l'algorithme a pour origine le maillage de la figure. Cette étape est essentielle pour la résolution d'une équation aux dérivées partielles. Pour optimiser notre algorithme, dans la mesure ou chaque étape n'engendre qu'une petite modification du polygone, nous pourrions éventuellement nous tourner vers des méthodes de remaillage efficaces. \\
+Lorsque nous faisons des petits déplacements des sommets, il faut faire attention à ne pas casser "la convexité" de la figure, ce qui pourrait passer aussi par un cas singulier où notre polygone aurait un coté en moins. Nous allons ajouter un test à notre algorithme pour nous assurer qu'il n'y est pas de problème à cause de ces cas limites. \\
+Ensuite, pour améliorer la complexité de l'algorithme, nous envisageons d'adapter la méthode du gradient et de chercher à identifier des directions privilégies.\\
+Ensuite, une grande limitation de cet algorithme est que la valeur du pas influe grandement sur le résultat final. Contrairement à ce que nous pourrions penser naivement un pas petit n'améliore pas nécessairement la qualité du polygone finale (on peut rester bloquer sur un maximum local).
+
+\newpage
+\section*{IV - Résultats de cet algorithme }
+Regardons sur un exemple le résultat de l'algorithme
+
+\begin{center}
+\includegraphics[scale=0.5]{initialPolygon.png}
+\\ Figure : Polygone initial
+\end{center}
+
+\begin{center}
+\includegraphics[scale=0.4]{finale.png}
+\\ Figure : Polygone final, après l'algorithme 
+\end{center}
+
+Pour cet exemple comme pour les autres testés avec l'algorithme le résultat a toujours été analogue: étape après étape du processus le polygone se symétrise par rapport à l'axe de symétrie du problème (axe des abscisses, avec les valeurs choisies)
+
+Pour les semaines à venir, nous allons essayer d'expliciter le profil des températures moyennes optimales obtenues selon les valeurs de pas utilisées en entrée de l'algorithme. Il est fort à parier qu'il soit possible de relier ce comportement à la "structure géométrique" des déplacements.
+\\ Voici un premier graphique obtenu, en raison d'un nombre d'itérations trop faibles utilisé il est difficilement interprétable.
+\begin{center}
+\includegraphics[scale=0.5]{plotPas.png}
+\\ Figure: valeur de la température moyenne optimale obtenue en fonction du pas utilisé pour un polygone initial donné
+\end{center}
+
+
+\newpage
+\part{Vers la suite du projet ...}
+\pa 
+
+Nous avons trouvé une autre façon pour modifier légèrement un polygone tout en restant stable dans la famille choisie. On déplace un sommet mobile dans la direction souhaitée, et ensuite on dilate/contracte le polygone dans la direction orthogonale au cote fixé. Ainsi, cette modification permet de rester à aire et à longueur du mur fixé constantes.
+\begin{center}
+	\includegraphics[scale=0.5]{alternatif.png}
+\\ Figure: illustation de la nouvelle méthode 1) déplacement libre 2) normalisation
+\end{center}
+Par ailleurs, nous envisageons également d'autoriser une modification de l'aire tout en pénalisant ce phénomène. 
+Il sera alors intéressant de comparer les résultats de ces différentes méthodes.
+
+\begin{center}
+\includegraphics[scale=0.5]{initialPolygon.png}
+\end{center}
+
+\begin{center}
+\includegraphics[scale=0.5]{plotPas.png}
+\end{center}
+
+\begin{center}
+\includegraphics[scale=0.5]{alternatif.png}
+\end{center}
+
+
+\newpage
+
+\pa 
+
+
+
+
+
+% ///////////////////////////////////////////////////////
+%						Partie Annexes
+% ///////////////////////////////////////////////////////
+
+\section*{Annexes}
+
+%========================================
+% Classe VECTOR
+%========================================
+
+\section*{Classe Vector}
+
+Cette première classe permet juste de représenter des vecteurs dynamiques sous Python.
+
+
+\begin{lstlisting}[language=Python,frame=single,caption=Création de la classe Vecteur]
+class Vector : 
+    """ Represente un vecteur """
+    
+    def __init__(self,x,y) : 
+        self.x = x 
+        self.y = y 
+        
+    def __str__(self) : 
+        return ("v(%f,%f)" % ( self.x, self.y))
+        
+        
+    # Normalise le vecteur 
+    def normalize(self) : 
+        norm = (self.x ** 2 + self.y ** 2) ** 0.5
+        self.x = self.x / norm 
+        self.y = self.y / norm 
+\end{lstlisting}
+
+
+%========================================
+% Classe VERTEX
+%========================================
+
+\section*{Classe Vertex}
+
+La classe Vertex permet de représenter des sommets mobiles sous Python. Chaque polygone est ainsi constitué de plusieurs objets de classe Vertex (de plusieurs sommets). La classe contient notamment une fonction $move$ permettant de déplacer un point selon une droite.
+
+\begin{lstlisting}[language=Python,frame=single,caption=Création d'une classe Vertex]
+class Vertex : 
+    """
+     La classe Vertex est une classe qui represente les coordonnees des points 
+     d'un polygone donne 
+    """
+    
+    def __init__(self, x, y) : 
+        
+        self.x = x 
+        self.y = y 
+    
+    def __str__(self) : 
+        return ("(%f,%f)" % (self.x, self.y) )
+    
+    def __copy__(self, vertex) : 
+        self.x = vertex.x 
+        self.y = vertex.y 
+    
+    #---------------------------------------------------------------------    
+    # Deplace le sommet de dx selon x et dy selon y 
+    
+    def update(self, dx, dy) : 
+        self.x += dx 
+        self.y += dy 
+        
+        
+    #---------------------------------------------------------------------   
+    # deplace le point dans la direction du vecteur unitaire vector 
+    
+    def move(self, vector, dl) : 
+        # On deplace le point selon le vecteur
+        dx = dl * vector.x 
+        dy = dl * vector.y 
+        self.update(dx, dy) 
+\end{lstlisting}
+
+%========================================
+% Classe POLYGON
+%========================================
+
+\section*{Classe Polygon}
+
+La classe Polygon est l'élément central de notre optimisation de forme. En effet nous cherchons à optimiser des objets de forme polygonale. \\
+Chaque objet Polygon est constitué d'objets de classe Vertex qui contiennent les coordonnées des sommets. Ces Vertex sont contenus dans un attribut de type liste, et ils sont ordonnés dans le sens horaire. On commence conventionnellement par mettre les sommets liant le côté traversé par le flux. C'est très important, car le calcul de la température moyenne sous Matlab dépend de l'ordre des côtés, car il faut choisir des conditions aux limites différentes sur chacun des côtés.\\
+Les méthodes de cette classe Polygon sont les suivantes : 
+\begin{enumerate}
+\item $init$ qui initialise la classe avec une liste \textbf{ordonnée} de sommets de type Vertex
+\item $deepCopy()$ qui permet de copier un objet
+\item $getx(i)$ et $gety(i)$ qui retournent les coordonnées $x$ et $y$ du sommet numéroté i 
+\item $directorVertice(i)$ qui retourne le coefficient directeur de la droite passant par le sommet i, et parallèle à ses deux voisins les plus proches (voir la droite rouge sur le schéma du déplacement)
+\item $directorSide(i)$ qui retourne le coefficient directeur de la droite passant par le côté numéroté i 
+\item $buildGeometry()$ qui construit une liste représentant le polygone en Matlab. Cette liste est exportée sous Matlab pour être traitée. 
+\item $move(i, dl)$ qui bouge le sommet numéroté i d'une distance dl \textbf(Attention : dl peut être négatif)
+\item $valueIntegral(i, dl, eng)$ qui calcule la température moyenne dans le polygone lorsque le sommet i est déplacé d'une longueur dl. Cette fonction est déclinée en $valueIntegralOS(i, dl, eng)$ (OS:odd sides and symetrical) qui prend en compte la symétrie dans le mouvement
+\item $plotPY(color)$ qui trace sur le canvas le polygon (pour faire des représentations graphiques
+\item $area()$ qui calcule l'aire du polygone grâce à un module spécifique
+\item $degSymetrie()$ qui calcule le "degré de symétrie" du polygone grâce à un module encore une fois 
+\
+\end{enumerate}
+\newpage
+
+
+\begin{lstlisting}[language=Python,frame=single,caption=Création de la classe Polygon]
+
+class Polygon :
+
+    """
+        La classe Polygon contient des Vertex (Sommets). L'ensemble de ces sommets
+        forme un polygon
+
+        Les attributs de cette classe sont :
+           N : le nombre de côtés
+           vertices : la liste contenant les sommets
+
+    """
+
+    def __init__(self, *args) :
+        # Nombre de côtés dans le polygone
+        self.N = len(args)
+
+        # Liste contenant les sommets (vertex)
+        self.vertices = []
+        for vertex in args :
+            self.vertices.append(vertex)
+
+    def deepCopy(self):
+        copy = Polygon()
+        copy.N = self.N
+        for vertex in self.vertices :
+            copy.vertices.append(vertex.deepCopy())
+        return copy
+
+
+    # Print
+    def __str__(self) :
+        res = "("
+        for vertex in self.vertices :
+            res = res + vertex.__str__() + ","
+        return res[:-1]+')'
+
+
+    #----------------------------------------------------------------
+    # Retourne les coordonnées x et y d'un sommet
+    #
+    # Retourne la coordonnée x du sommet i
+    def getx(self, i) :
+        return self.vertices[i % self.N].x
+
+    # Retourne la coordonnée y du sommet i
+    def gety(self, i) :
+        return self.vertices[i % self.N].y
+
+
+
+    #-----------------------------------------------------------------
+    # La fonction findCoef renvoie le coefficient directeur de la droite passant
+    # par les sommets i-1 et i+1
+
+    def directorVertice(self, i) :
+        dx = self.getx(i + 1) - self.getx(i - 1)
+        dy = self.gety(i + 1) - self.gety(i - 1)
+        res = Vector(dx, dy)
+        res.normalize()
+        return res
+
+
+
+    #-----------------------------------------------------------------
+    # calcule le vecteur directeur de la droite passant par le côté i
+    def directorSide(self, i) :
+        dy = self.gety(i + 1) - self.gety(i)
+        dx = self.getx(i + 1) - self.getx(i)
+        res = Vector(dx, dy)
+        res.normalize()
+        return res
+
+
+    #-----------------------------------------------------------------
+    # Cette méthode construit une géométrie prête à l'exportation sous matlab
+
+    def buildGeometry(self) :
+
+        #    On initialise une liste avec l'argument 2, qui est le 
+        #    code correspondant a une forme polygonale sous 
+        #    matlab, et self._N est le nombre de côtés
+ 		#    Cette fonction renvoie une matrice prête a être 
+ 		#    employée dans la fonction Matlab decsg(mat)
+
+        mat = [[2], [self.N]]
+        for vertex in self.vertices :
+            mat.append([vertex.x])
+        for vertex in self.vertices :
+            mat.append([vertex.y])
+        return mat
+
+    #-----------------------------------------------------------------
+    #
+    #    Déplacement d'un point du polygone selon l'algorithme
+    #    i correspond au numéro du sommet et dl à la longueur du déplacement
+
+    def move(self, i, dl) :
+        vector = self.directorVertice(i)
+        self.vertices[i % self.N].move(vector, dl)
+
+
+    #------------------------------------------------------------------
+    #
+    #    Calcul de la valeur de l'intégrale pour un déplacement
+    #    du sommet i d'une longueur dl. La méthode ne modifie ainsi
+    #    pas le polygone lorsque elle est executée
+
+    def valueIntegral(self, i, dl, eng) :
+        self.move(i, dl)
+        mat = matlab.double(self.buildGeometry())
+        value = eng.computeIntegral(mat)
+        self.move(i, -dl)
+        return value
+
+    #-------------------------------------------------------------------
+    #
+    #   La fontion calcul calcul aussi l'intégrale, mais pour un
+    #   un déplacement symétrique du polygone symétrique à côtés
+    #   impairs (On exploite donc la symétrie)
+
+    def valueIntegralOS(self, i, dl, eng) :
+        self.move(i, dl)
+        self.move(self.N - i, -dl)
+        mat = matlab.double(self.buildGeometry())
+        value = eng.computeIntegral(mat)
+        self.move(i, -dl)
+        self.move(self.N - i + 1, dl)
+        return value
+
+
+    #--------------------------------------------------------------------
+    # Fonction de traçage
+
+    def plotPY(self,color) :
+
+        for k in range(self.N) :
+            plt.plot([self.vertices[ k % self.N].x,
+                      self.vertices[(k + 1) % self.N].x],
+                     [self.vertices[k % self.N].y,
+                      self.vertices[(k + 1) % self.N].y],
+                     color
+                     )
+
+        #plt.show()
+
+
+    #---------------------------------------------------------------------
+    # Retourne l'air du polygone
+
+    def area(self) :
+
+        poly = [[self.getx(i), self.gety(i)] for i in range(self.N)]
+        return aire_poly(poly)
+
+    #---------------------------------------------------------------------
+    # Retourne l'air du polygone
+
+    def degSymetrie(self, step) :
+
+        poly = [[self.getx(i), self.gety(i)] for i in range(self.N)]
+        return deg_sym(poly, step)
+
+
+\end{lstlisting}
+
+
+%========================================
+% SCRIPT PRINCIPAL MATLAB
+%========================================
+\section*{Calcul de la valeur moyenne sous Matlab}
+
+Le script suivant est une fonction prenant en argument une forme géométrique sur laquelle va être résolue l'EDP. Voici le fonctionnement de la fonction résumée :
+
+\begin{enumerate}
+\item La géométrie importée est implantée dans l'objet model qui va servir à résoudre l'équation differentielle
+\item avec $applyBoundaryCondition$ on applique les conditions aux limites sur le modèle étudié (ici dirichlet sur tous les côtés sauf le premier avec une valeur 10, et newmann sur le premier côté avec une valeur 10000
+\item Ensuite on résout l'équation de la chaleur (f=0 car pas de termes de source). Les variables u, p, t contiennent respectivement les valeurs scalaires de la fonction, les coordonnées des sommets, et les références de chaque sommets
+\item A l'aide de ces dernières variables, on calcule l'intégrale de la fonction solution (C'est à dire la température moyenne)
+\end{enumerate}
+
+
+
+\begin{lstlisting}[language=Matlab,frame=single,caption=Script Matlab pour le calcul de la valeur moyenne sur une géométrie donnée]
+
+function I = computeIntegral(mat) 
+
+
+model = createpde() ; 
+g=decsg(mat);
+geometryFromEdges(model,g); % geometryFromEdges for 2-D
+
+
+edges = [2:1:(size(mat)-1)/2];
+%Conditions de bord : 
+%Les murs non chauffés sont  la température éxterieure To = 10C
+applyBoundaryCondition(model,'dirichlet','Edge',edges,'u',10);
+
+%Le mur chauffé est modelisé par un flux rentrant , on suppose que l'on a
+%mis un radiateur au niveau du mur 
+applyBoundaryCondition(model,'neumann','Edge',[1],'q',0,'g',10000);
+
+a = 0;
+c=1;
+a=0;
+f=0;
+[u,p,e,t] = adaptmesh(g,model,c,a,f,'Par',0.1,'tripick','pdeadworst',
+	               'MesherVersion','R2013a');
+
+
+
+%Le résultat est ainsi renvoyé
+%On calcule l'intégrale de la fonction renvoyée
+
+coord = p ; % Contient les coordonnées des sommets 
+indices = t ; % Contient les références de chaque élément
+val = u ; 
+
+% On va calculer l'intégrale en évaluant la valeur de la fonction sur
+% chaque petit triangle 
+
+I =0 ; 
+area = 0 ; 
+for i = 1:length(indices) ; % Pour chaque triangle 
+    a = coord(:,indices(1,i)) ;     % Coord du 1er point 
+    b = coord(:,indices(2,i)) ;     % Coord du second point 
+    c = coord(:,indices(3,i)) ;     % Coorddu troisième point
+    
+    moy = (val(indices(1,i))+val(indices(1,i))+val(indices(1,i)))/3 ;
+    area = area + 0.5 * abs( a(1) * c(2 )- a(1) * b(2) + b(1) * a(2) - b(1) * 
+    c(2) + c(1) * b(2) - c(1) * a(2)) ; 
+    I = I + moy * 0.5 * abs( a(1) * c(2) - a(1) * b(2) + b(1) * a(2) - b(1) * 
+    c(2) + c(1) * b(2) - c(1) * a(2)) ;
+end
+    I = I / area ; 
+
+\end{lstlisting}
+
+%========================================
+% MEILLEUR DEPLACEMENT
+%========================================
+
+\section*{Implementation de l'algorithme d'optimisation sous Python}
+
+On commence tout d'abord par créer une fonction $bestValue$ qui prend en argument un polygone, la valeur de l'intégrale sur ce polygone (pour un soucis d'optimisation de temps de calcul), le numéro du sommet que l'on veut étudier (i), le nombre de test que l'on veut effectuer de part et d'autre du sommet (nbTest), la taille du déplacement (dl) et le moteur matlab (eng)\\
+Cette fonction renvoie la valeur maximal, et le déplacement associé à cette valeur maximale dans une liste. Cette liste est de la forme [Valeur Maximale, déplacement associé (scalaire algébrique)]
+\newpage
+\begin{lstlisting}[language=Python,frame=single,caption=Fonction permettant de trouver la meilleure valeur de la temperature pour le déplacement d'un seul sommet]
+
+# =============================================================================
+#                             Best Value of a vertex
+# =============================================================================
+
+#   On cherche la position du sommet i qui maximise la fonctionnelle de forme
+#   la fonction prend en paramètres :
+#
+#   - initValue : la valeur de l'intégrale du polygone initial (pour optimiser
+#     et ne pas avoir à le calculer à chaque fois)
+#
+#   - dl : la longueur du pas
+#
+#   - i : le numéro du sommet
+#
+#   - nbTest : le nombre de valeur testée de part et d'autre du sommet, en tout
+#     2*nbTest valeurs sont testées sur chaque sommet
+#
+#   - eng : le moteur matlab
+#
+
+def bestValue(polygon, initValue, i, nbTest, dl, eng) :
+
+    #   On stocke les valeurs des intégrales liées à chacun des déplacements
+    #   dans une liste
+    #   right correspond aux déplacements à droite du point
+    #   left correspond aux déplacement à gauche du point
+
+    left = [polygon.valueIntegral(i, -j * dl, eng) for j in range(nbTest)]
+    right = [polygon.valueIntegral(i, j * dl, eng) for j in range(nbTest)]
+    L = np.array(left + [initValue] + right)
+
+    #   On cherche le maximum dans cette liste, puis on trouve l'index de ce
+    #   maximum, qu'on appelle indexMax
+    indexMax = np.argmax(L)
+
+    #   Le résulat retourné contient la valeur maximum de l'intégrale,
+    #   et le déplacement associé à celui-ci
+    return [L[indexMax], (indexMax - nbTest) * dl]
+
+
+\end{lstlisting}
+
+\vspace{3cm}
+Désormais, on peut écrire la boucle principale de l'algorithme. Comme il s'agit de la première version, nous l'appelons $naiveMainloop$ car elle n'est pas très optimisée. \\
+Les arguments pris en compte sont : 
+\begin{enumerate}
+\item La forme initiale polygon
+\item la taille du pas de déplacement dl 
+\item le nombre de tests (nbTest) à effectuer sur chaque déplacement
+\item le nombre d'itérations maximal (nbIteration)
+\item une liste values pour stocker les valeurs de la température moyenne lors de chaque itération
+\item l'instance de matlab en cours (eng)
+\end{enumerate}
+
+Le principe de fonctionnement est tel qu'il est énoncé dans la description initiale de l'algorithme. On parcourt tous les sommets, et on retient seulement un seul déplacement de sommet qui maximise la température moyenne.
+\begin{lstlisting}[language=Python,frame=single,caption=Boucle Principale]
+
+# ============================================================================
+#                              Naive Mainloop
+# ============================================================================
+
+#   Cette boucle naive se contente de parcourir les sommets pour trouver le
+#   meilleur déplacement possible
+
+
+def naiveMainloop(polygon, dl, nbTest, nbIteration, values, eng) :
+    #   Conservation des données de la temperature moyenne pour chaque itération
+    #   values est une liste vide destinée à conserver les valeurs de l'intégrale
+
+    if nbIteration == 0 :
+        print("Fin de la simulation")
+        return 0
+
+    initValue = polygon.valueIntegral(0,0,eng)
+
+    #   On cherche le petit déplacement qui maximise notre fonctionnelle
+    #   de forme lors d'une itération de l'algorithme
+    #   On examine chacun des sommets indépendamment
+
+    max = [0,0]                            # Initialisation du maximum
+    rank = 0
+    for i in range(2, polygon.N) :
+        val = bestValue(polygon, initValue, i, nbTest, dl, eng)
+        if val[0] > max[0] :
+            max = val
+            rank = i
+
+    #   Si la valeur maximum est atteinte pour un déplacement nul,
+    #   on arrête la simulation
+    if max[1] == 0 :
+        print("Il reste " + str(nbIteration) + " itérations")
+        return 0
+
+    # Sinon on bouge un sommet
+    polygon.move(rank, max[1])
+    values.append(max[0])
+
+    # Appel récursive de la fonction
+    naiveMainloop(polygon, dl, nbTest, nbIteration - 1, values, eng)
+    
+\end{lstlisting}
+
+\newpage
+\section*{Modules complémentaires}
+
+Module pour calculer l'aire d'un polygone : 
+
+\begin{lstlisting}[language=Python,frame=single,caption=]
+
+"Aire d'un polygone"
+import math
+
+def decoupe_triangles(poly): #poly = liste des coord
+    resultat = []
+    i = 0
+    for i in range(len(poly) -2):
+        triangle = [poly[0], poly[i+1], poly[i+2]]
+        i += 1
+        resultat.append(triangle)
+    return resultat
+
+
+def longueur_cotes(triangle): #liste coordonnée
+    resultat = [] #initialisation résultat
+    triangle.append(triangle[0])
+    for i in range(len(triangle) - 1):
+        cote = math.sqrt((triangle[i][0] - triangle[i + 1][0])**2 + (triangle[i][1] - triangle[i + 1][1])**2)
+        resultat.append(cote)
+    return resultat
+
+
+
+def calcul_aire(triangle_l): 
+	#entrée = longueurs cotés, sortie = aire du triangle
+    cote1, cote2, cote3 = triangle_l[0], triangle_l[1], triangle_l[2]
+    p = (cote1 + cote2 + cote3) / 2  #p est le demi périmètre du triangle
+    aire = math.sqrt (p * (p - cote1) * (p - cote2) * (p - cote3)) 
+    #formule du héron
+    return aire
+
+
+def aire_poly(poly): #entrée: liste coord du poly
+    List_triangles = decoupe_triangles(poly)
+    resultat = 0 #initialisation du résultat
+    for i in range(len(List_triangles)):
+        resultat += calcul_aire(longueur_cotes(List_triangles[i]))
+    return resultat
+
+\end{lstlisting}
+\vspace{2cm}
+
+Module pour calculer le degré de symétrie :
+
+\begin{lstlisting}[language=Python,frame=single,caption=]
+
+"""
+=================================================================================
+                      MODULE: degré de défaut de symétrie
+=================================================================================
+"""
+from aire_polygone import *
+#nécessite l'importe du module aire_polygone
+
+
+#-------------------------------------------------------------
+#Pour trouver le point de l'axe qui complète
+def sym(Poly_entree, pas, critere):
+
+    Poly_sortie = [[0, -1], [0, 1], [0.1, 4], [0.15, 0], [0.1, -4]]
+    for i in range(1000):
+        if abs(aire_poly(Poly_entree) - aire_poly(Poly_sortie)) > critere:
+            Poly_sortie[3][0] += pas
+    return Poly_sortie, aire_poly(Poly_entree), aire_poly(Poly_sortie)
+
+
+#-------------------------------------------------------------
+#renvoie le second plus grand terme d'une liste
+def second(L):
+    L.remove(max(L))
+    return max(L)
+
+#-------------------------------------------------------------
+#   teste le signe d'un nombre
+def signe(nbr):
+    if nbr >= 0:
+        return 1
+    else:
+        return -1
+
+
+#-------------------------------------------------------------
+def trouver_sommets(Poly, x): #renvoie les sommets concernés
+
+    sommets = []
+    Poly.append(Poly[0])
+    for i in range(len(Poly) - 1):
+        if signe(Poly[i][0] - x) != signe(Poly[i+1][0] - x):
+            sommets.append([Poly[i], Poly[i+1]])
+
+    #renvoie la borne xmax aussi
+    return sommets
+
+
+#-------------------------------------------------------------
+#   Renvoie le y lié à la droite passant par point 1 et ponit 2
+def interpol(point1, point2, x): #interpole l'ordonnée
+    if point1[0] > point2[0] :
+        point1, point2 = point2, point1
+    a = (point2[1] - point1[1]) / (point2[0] - point1[0])
+    b = point1[1] - a * point1[0]
+    return a * x + b
+
+
+#-------------------------------------------------------------
+#    Main function
+#    Renvoie le scalaire donnant le score de symétrie
+def deg_sym(Poly, pas):
+
+    #initialisation de la borne a pas depassée pour sortir du polygone
+    xborne = Poly[0][0]
+    for i in range(1, len(Poly)):
+        if Poly[i][0] > xborne:
+            xborne = Poly[i][0]
+    x = 0 #initialisation
+    xmax = -1 #initialisation
+    deg = 0
+
+
+    for i in range(int(xborne / pas)):
+
+        #incrémentation de l'abscisse le long de l'axe de symétrie
+        x += pas
+
+        # Précaution pour ne pas qu'on sorte du polygone
+        if x >= xborne: #teste si x est dans le polygone
+            break
+        if x >= xmax:
+            sommets_vois = trouver_sommets(Poly, x)
+            xmax =  second([sommets_vois[0][0][0],
+                            sommets_vois[0][1][0],
+                            sommets_vois[1][0][0],
+                            sommets_vois[1][1][0]])
+
+        yhaut = interpol(sommets_vois[0][0], sommets_vois[0][1], x)
+        ybas = interpol(sommets_vois[1][0], sommets_vois[1][1], x)
+
+        if signe(yhaut) != signe(ybas):
+            deg += abs(yhaut + ybas)
+        else:
+            deg += abs((yhaut - ybas) / 2)
+            
+    return deg
+
+
+\end{lstlisting}
+
+
+
+\end{document}
