@@ -5,5 +5,7 @@ This code is an implementation of several methods and algorithms in order to max
 
 The overall project was to find the optimal polygonal shape for a given area. 
 
+This project was given the highest rating.
+
 
 
